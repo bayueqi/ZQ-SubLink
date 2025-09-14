@@ -207,7 +207,7 @@ export default {
   data() {
     return {
       backendVersion: "",
-      advanced: "2",
+      advanced: "1",
 
       // 是否为 PC 端
       isPC: true,
