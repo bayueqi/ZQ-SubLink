@@ -203,7 +203,6 @@ const defaultBackend = process.env.VUE_APP_SUBCONVERTER_DEFAULT_BACKEND + '/sub?
 const shortUrlBackend = process.env.VUE_APP_MYURLS_API
 const configUploadBackend = process.env.VUE_APP_CONFIG_UPLOAD_API
 const sinkApi = process.env.VUE_APP_SINK_API || ''
-const sinkToken = process.env.VUE_APP_SINK_TOKEN || ''
 
 export default {
   data() {
@@ -528,7 +527,7 @@ export default {
           .post(sinkApi, {
             url: this.customSubUrl,
             comment: "ZQ-SubLink",
-          }, sinkToken ? { headers: { Authorization: `Bearer ${sinkToken}` } } : undefined)
+          })
           .then(res => {
             const data = res.data || {};
             if (data.shortLink) {
