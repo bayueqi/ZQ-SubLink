@@ -523,19 +523,31 @@ export default {
       this.loading = true;
 
       // 仅使用一个 JSON 接口作为短链后端
-      // 采用 application/x-www-form-urlencoded，避免浏览器触发 CORS 预检
-      const body = new URLSearchParams()
-      body.append('url', this.customSubUrl)
-      body.append('comment', 'ZQ-SubLink')
-
+      // 使用 JSON 协议调用 Sink
       this.$axios
-        .post(sinkApi, body)
+        .post(sinkApi, {
+          url: this.customSubUrl,
+          comment: 'ZQ-SubLink',
+        }, {
+          headers: { 'Content-Type': 'application/json' },
+        })
         .then(res => {
           const data = res.data || {};
           if (data.shortLink) {
             this.customShortSubUrl = data.shortLink;
             this.$copyText(data.shortLink);
             this.$message.success("短链接已复制到剪贴板");
+          } else if (data.link && data.link.slug) {
+            // 兜底：后端未返回 shortLink，但返回了 slug，用后端域名拼接
+            try {
+              const origin = new URL(sinkApi).origin
+              const shortLink = origin + '/' + data.link.slug
+              this.customShortSubUrl = shortLink
+              this.$copyText(shortLink)
+              this.$message.success("短链接已复制到剪贴板");
+            } catch (e) {
+              this.$message.error("短链接获取失败：无法从返回值构造 shortLink");
+            }
           } else {
             this.$message.error("短链接获取失败：返回数据不含 shortLink");
           }
