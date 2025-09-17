@@ -523,17 +523,12 @@ export default {
       this.loading = true;
 
       // 仅使用一个 JSON 接口作为短链后端
-      // 采用 application/x-www-form-urlencoded，避免浏览器触发 CORS 预检
-      // 同时本地生成一个 slug，确保即使后端不回包 shortLink，前端也能计算
-      const genSlug = () => Math.random().toString(36).replace(/[^a-z0-9]/gi, '').slice(2, 2 + 6).toLowerCase()
-      const fallbackSlug = genSlug()
-      const body = new URLSearchParams()
-      body.append('url', this.customSubUrl)
-      body.append('comment', 'ZQ-SubLink')
-      body.append('slug', fallbackSlug)
-
+      // 按后端协议发送 JSON，并仅采用后端返回的 shortLink
       this.$axios
-        .post(sinkApi, body)
+        .post(sinkApi, {
+          url: this.customSubUrl,
+          comment: "ZQ-SubLink",
+        })
         .then(res => {
           const data = res.data || {};
           if (data.shortLink) {
@@ -541,24 +536,7 @@ export default {
             this.$copyText(data.shortLink);
             this.$message.success("短链接已复制到剪贴板");
           } else {
-            // 兼容：部分后端只返回 link.slug，不返回 shortLink
-            try {
-              const base = new URL(sinkApi).origin
-              if (data.link && data.link.slug) {
-                const guessed = `${base}/${data.link.slug}`
-                this.customShortSubUrl = guessed
-                this.$copyText(guessed)
-                this.$message.success("短链接已复制到剪贴板");
-              } else {
-                // 最终兜底：使用我们提交的 slug 直接拼接
-                const guessed = `${base}/${fallbackSlug}`
-                this.customShortSubUrl = guessed
-                this.$copyText(guessed)
-                this.$message.success("短链接已复制到剪贴板");
-              }
-            } catch (e) {
-              this.$message.error("短链接获取失败");
-            }
+            this.$message.error("短链接获取失败：后端未返回 shortLink");
           }
         })
         .catch((e) => {
