@@ -537,7 +537,20 @@ export default {
             this.$copyText(data.shortLink);
             this.$message.success("短链接已复制到剪贴板");
           } else {
-            this.$message.error("短链接获取失败：返回数据不含 shortLink");
+            // 兼容：部分后端只返回 link.slug，不返回 shortLink
+            try {
+              if (data.link && data.link.slug) {
+                const base = new URL(sinkApi).origin
+                const guessed = `${base}/${data.link.slug}`
+                this.customShortSubUrl = guessed
+                this.$copyText(guessed)
+                this.$message.success("短链接已复制到剪贴板");
+              } else {
+                this.$message.error("短链接获取失败：返回数据不含 shortLink");
+              }
+            } catch (e) {
+              this.$message.error("短链接获取失败");
+            }
           }
         })
         .catch((e) => {
