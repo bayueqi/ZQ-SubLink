@@ -202,6 +202,8 @@ const gayhubRelease = process.env.VUE_APP_BACKEND_RELEASE
 const defaultBackend = process.env.VUE_APP_SUBCONVERTER_DEFAULT_BACKEND + '/sub?'
 const shortUrlBackend = process.env.VUE_APP_MYURLS_API
 const configUploadBackend = process.env.VUE_APP_CONFIG_UPLOAD_API
+const sinkApi = process.env.VUE_APP_SINK_API || ''
+const sinkToken = process.env.VUE_APP_SINK_TOKEN || ''
 
 export default {
   data() {
@@ -520,6 +522,38 @@ export default {
 
       this.loading = true;
 
+      // 优先使用 Sink 后端（/api/link/upsert）
+      if (sinkApi) {
+        this.$axios
+          .post(sinkApi, {
+            url: this.customSubUrl,
+            comment: "ZQ-SubLink",
+          }, sinkToken ? { headers: { Authorization: `Bearer ${sinkToken}` } } : undefined)
+          .then(res => {
+            const data = res.data || {};
+            if (data.shortLink) {
+              this.customShortSubUrl = data.shortLink;
+              this.$copyText(data.shortLink);
+              this.$message.success("短链接已复制到剪贴板");
+            } else if (data.link && data.link.slug && data.shortLink) {
+              // 冗余分支（兼容性）
+              this.customShortSubUrl = data.shortLink;
+              this.$copyText(data.shortLink);
+              this.$message.success("短链接已复制到剪贴板");
+            } else {
+              this.$message.error("短链接获取失败：返回数据不含 shortLink");
+            }
+          })
+          .catch((e) => {
+            this.$message.error("短链接获取失败（Sink）：" + (e && e.message ? e.message : ""));
+          })
+          .finally(() => {
+            this.loading = false;
+          });
+        return;
+      }
+
+      // 回退到原有第三方短链服务
       let data = new FormData();
       data.append("longUrl", btoa(this.customSubUrl));
 
