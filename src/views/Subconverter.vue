@@ -534,11 +534,6 @@ export default {
             this.customShortSubUrl = data.shortLink;
             this.$copyText(data.shortLink);
             this.$message.success("短链接已复制到剪贴板");
-          } else if (data.link && data.link.slug && data.shortLink) {
-            // 冗余分支（兼容性）
-            this.customShortSubUrl = data.shortLink;
-            this.$copyText(data.shortLink);
-            this.$message.success("短链接已复制到剪贴板");
           } else {
             this.$message.error("短链接获取失败：返回数据不含 shortLink");
           }
