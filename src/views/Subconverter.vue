@@ -200,9 +200,10 @@ const remoteConfigSample = process.env.VUE_APP_SUBCONVERTER_REMOTE_CONFIG
 const subDocAdvanced = process.env.VUE_APP_SUBCONVERTER_DOC_ADVANCED
 const gayhubRelease = process.env.VUE_APP_BACKEND_RELEASE
 const defaultBackend = process.env.VUE_APP_SUBCONVERTER_DEFAULT_BACKEND + '/sub?'
-const shortUrlBackend = process.env.VUE_APP_MYURLS_API
 const configUploadBackend = process.env.VUE_APP_CONFIG_UPLOAD_API
-const sinkApi = process.env.VUE_APP_SINK_API || ''
+// 仅保留一个变量作为短链后端：VUE_APP_MYURLS_API
+// 优先使用环境变量；若未配置，则使用固定的 Sink 地址作为兜底，防止误走回退分支
+const sinkApi = process.env.VUE_APP_MYURLS_API || 'https://url.520jacky.dpdns.org/api/link/upsert'
 
 export default {
   data() {
@@ -521,59 +522,29 @@ export default {
 
       this.loading = true;
 
-      // 优先使用 Sink 后端（/api/link/upsert）
-      if (sinkApi) {
-        this.$axios
-          .post(sinkApi, {
-            url: this.customSubUrl,
-            comment: "ZQ-SubLink",
-          })
-          .then(res => {
-            const data = res.data || {};
-            if (data.shortLink) {
-              this.customShortSubUrl = data.shortLink;
-              this.$copyText(data.shortLink);
-              this.$message.success("短链接已复制到剪贴板");
-            } else if (data.link && data.link.slug && data.shortLink) {
-              // 冗余分支（兼容性）
-              this.customShortSubUrl = data.shortLink;
-              this.$copyText(data.shortLink);
-              this.$message.success("短链接已复制到剪贴板");
-            } else {
-              this.$message.error("短链接获取失败：返回数据不含 shortLink");
-            }
-          })
-          .catch((e) => {
-            this.$message.error("短链接获取失败（Sink）：" + (e && e.message ? e.message : ""));
-          })
-          .finally(() => {
-            this.loading = false;
-          });
-        return;
-      }
-
-      // 回退到原有第三方短链服务
-      let data = new FormData();
-      data.append("longUrl", btoa(this.customSubUrl));
-
+      // 仅使用一个 JSON 接口作为短链后端
       this.$axios
-        .post(shortUrlBackend, data, {
-          // 移除Content-Type设置，让浏览器自动处理FormData的Content-Type
-          // header: {
-          //   "Content-Type": "application/form-data; charset=utf-8"
-          // }
+        .post(sinkApi, {
+          url: this.customSubUrl,
+          comment: "ZQ-SubLink",
         })
         .then(res => {
-          if (res.data.Code === 1 && res.data.ShortUrl !== "") {
-            this.customShortSubUrl = res.data.ShortUrl;
-            this.$copyText(res.data.ShortUrl);
+          const data = res.data || {};
+          if (data.shortLink) {
+            this.customShortSubUrl = data.shortLink;
+            this.$copyText(data.shortLink);
+            this.$message.success("短链接已复制到剪贴板");
+          } else if (data.link && data.link.slug && data.shortLink) {
+            // 冗余分支（兼容性）
+            this.customShortSubUrl = data.shortLink;
+            this.$copyText(data.shortLink);
             this.$message.success("短链接已复制到剪贴板");
           } else {
-            this.$message.error("短链接获取失败：" + res.data.Message);
+            this.$message.error("短链接获取失败：返回数据不含 shortLink");
           }
         })
-        .catch(() => {
-          this.$message.error("短链接获取失败");
+        .catch((e) => {
+          this.$message.error("短链接获取失败：" + (e && e.message ? e.message : ""));
         })
         .finally(() => {
           this.loading = false;
