@@ -523,11 +523,13 @@ export default {
       this.loading = true;
 
       // 仅使用一个 JSON 接口作为短链后端
+      // 采用 application/x-www-form-urlencoded，避免浏览器触发 CORS 预检
+      const body = new URLSearchParams()
+      body.append('url', this.customSubUrl)
+      body.append('comment', 'ZQ-SubLink')
+
       this.$axios
-        .post(sinkApi, {
-          url: this.customSubUrl,
-          comment: "ZQ-SubLink",
-        })
+        .post(sinkApi, body)
         .then(res => {
           const data = res.data || {};
           if (data.shortLink) {
