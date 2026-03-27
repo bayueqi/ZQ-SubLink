@@ -201,8 +201,7 @@ const subDocAdvanced = process.env.VUE_APP_SUBCONVERTER_DOC_ADVANCED
 const gayhubRelease = process.env.VUE_APP_BACKEND_RELEASE
 const defaultBackend = process.env.VUE_APP_SUBCONVERTER_DEFAULT_BACKEND + '/sub?'
 const configUploadBackend = process.env.VUE_APP_CONFIG_UPLOAD_API
-// 使用 zq-file 作为短链后端
-const sinkApi = 'https://texturl.520jacky.dpdns.org/api/link'
+
 
 export default {
   data() {
@@ -531,7 +530,7 @@ export default {
         expireAt: null
       }
 
-      this.$axios.post(sinkApi, body, {
+      this.$axios.post('https://texturl.520jacky.dpdns.org/api/link', body, {
         headers: {
           'Content-Type': 'application/json',
           'X-From': 'ZQ-SubLink'
