@@ -201,9 +201,8 @@ const subDocAdvanced = process.env.VUE_APP_SUBCONVERTER_DOC_ADVANCED
 const gayhubRelease = process.env.VUE_APP_BACKEND_RELEASE
 const defaultBackend = process.env.VUE_APP_SUBCONVERTER_DEFAULT_BACKEND + '/sub?'
 const configUploadBackend = process.env.VUE_APP_CONFIG_UPLOAD_API
-// 仅保留一个变量作为短链后端：VUE_APP_MYURLS_API
-// 优先使用环境变量；若未配置，则使用固定的 Sink 地址作为兜底，防止误走回退分支
-const sinkApi = process.env.VUE_APP_MYURLS_API || 'https://url.520jacky.dpdns.org/api/link/upsert'
+// 使用 zq-file 作为短链后端
+const sinkApi = 'https://file.520jacky.dpdns.org/api/link'
 
 export default {
   data() {
@@ -499,35 +498,41 @@ export default {
       this.$copyText(this.customSubUrl);
       this.$message.success("定制订阅已复制到剪贴板");
 
-      // === 新增：自动上传到Pastebin ===
-      try {
-        .post('https://file.520jacky.dpdns.org/api/paste', {
-          text: this.customSubUrl
-        }, {
-          headers: {
-            'X-From': 'ZQ-SubLink'
-          }
-        });
-        // 不赋值 customShortSu不赋值 Pastebin返回什么
-    ，无论PkeShb 
-返回什么 false;
+      // 生成短链接
+      this.makeShortUrl();
+    },
+    async makeShortUrl() {
+      if (this.customSubUrl === "") {
+        this.$message.error("请先生成订阅链接");
+        return false;
       }
 
       this.loading = true;
 
-      // 仅使用一个 JSON 接口作为短链后端
-      // 采用 application/x-www-form-urlencoded，避免浏览器触发 CORS 预检
-      const body = new URLSearchParams()
-      body.append('url', this.customSubUrl)
-      body.append('comment', 'ZQ-SubLink')
+      // 使用 zq-file 的短链 API
+      const body = {
+        url: this.customSubUrl,
+        title: 'ZQ-SubLink',
+        name: null,
+        expireAt: null
+      }
 
-      th仅使用一个
-JpONb接口作为短链后端    .thdat采.shortLink) {
-x-www-f rm-urle coded，避免浏览器触发 CORS 预检     this.customShornewuURLSearchParams()
-Url = body.append('dat',.shortLink;
-      )   thisbody.append('.$copyT',xt(data.shortas("短链接已复制到剪贴板");
+      this.$axios.post(sinkApi, body, {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-From': 'ZQ-SubLink'
+        }
+      })
+        .then(res => {
+          if (res.data.code === 1 && res.data.id) {
+            this.customShortSubUrl = 'https://file.520jacky.dpdns.org/' + res.data.id;
+            this.$copyText(this.customShortSubUrl);
+            this.$message.success("短链接已复制到剪贴板");
           } else {
-         r)> {
+            this.$message.error("短链接获取失败：" + (res.data.message ? res.data.message : "服务端错误"));
+          }
+        })
+        .catch(e => {
           this.$message.error("短链接获取失败：" + (e && e.message ? e.message : ""));
         })
         .finally(() => {
