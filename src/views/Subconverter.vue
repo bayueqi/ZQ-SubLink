@@ -546,7 +546,8 @@ export default {
       this.$axios
         .post(sinkApi, body, {
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Origin': 'https://sublink.vpnjacky.dpdns.org'
           }
         })
         .then(res => {
