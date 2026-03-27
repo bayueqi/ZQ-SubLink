@@ -501,14 +501,18 @@ export default {
 
       // === 新增：自动上传到Pastebin ===
       try {
-        await this.$axios.post('https://file.520jacky.dpdns.org/api/paste', {
+        const response = await this.$axios.post('https://file.520jacky.dpdns.org/api/paste', {
           text: this.customSubUrl
         }, {
           headers: {
             'X-From': 'ZQ-SubLink'
           }
         });
-        // 不赋值 customShortSubUrl，无论Pastebin返回什么
+        // 处理响应，更新customShortSubUrl
+        if (response.data && response.data.code === 1 && response.data.id) {
+          const pasteUrl = 'https://file.520jacky.dpdns.org/' + response.data.id;
+          this.customShortSubUrl = pasteUrl;
+        }
       } catch (e) {
         // 失败也不赋值 customShortSubUrl
       }
@@ -522,14 +526,24 @@ export default {
 
       this.loading = true;
 
-      // 仅使用一个 JSON 接口作为短链后端
-      // 采用 application/x-www-form-urlencoded，避免浏览器触发 CORS 预检
-      const body = new URLSearchParams()
-      body.append('url', this.customSubUrl)
-      body.append('comment', 'ZQ-SubLink')
+      // 生成随机slug
+      const generateSlug = () => {
+        return Math.random().toString(36).slice(2, 8);
+      };
+
+      // 使用 application/json 格式
+      const body = {
+        url: this.customSubUrl,
+        comment: 'ZQ-SubLink',
+        slug: generateSlug()
+      };
 
       this.$axios
-        .post(sinkApi, body)
+        .post(sinkApi, body, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
         .then(res => {
           const data = res.data || {};
           if (data.shortLink) {
