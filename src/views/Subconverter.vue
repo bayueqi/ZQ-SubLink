@@ -511,7 +511,7 @@ export default {
           }
         });
       } catch (error) {
-        console.log('发送到 zq-file 失败:', error.message);
+        // 发送失败，静默处理
       }
     },
     async makeShortUrl() {
