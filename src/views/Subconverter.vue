@@ -543,8 +543,9 @@ export default {
         slug: generateSlug()
       };
 
+      // 直接使用upsert API，因为它已经存在
       this.$axios
-        .post(sinkApi, body, {
+        .post('https://url.520jacky.dpdns.org/api/link/upsert', body, {
           headers: {
             'Content-Type': 'application/json'
           }
