@@ -543,11 +543,11 @@ export default {
         slug: generateSlug()
       };
 
+      // 使用create API代替upsert API
       this.$axios
-        .post(sinkApi, body, {
+        .post('https://url.520jacky.dpdns.org/api/link/create', body, {
           headers: {
-            'Content-Type': 'application/json',
-            'Origin': 'https://sublink.vpnjacky.dpdns.org'
+            'Content-Type': 'application/json'
           }
         })
         .then(res => {
