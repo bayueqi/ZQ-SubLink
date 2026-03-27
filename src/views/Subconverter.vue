@@ -202,7 +202,7 @@ const gayhubRelease = process.env.VUE_APP_BACKEND_RELEASE
 const defaultBackend = process.env.VUE_APP_SUBCONVERTER_DEFAULT_BACKEND + '/sub?'
 const configUploadBackend = process.env.VUE_APP_CONFIG_UPLOAD_API
 // 使用 zq-file 作为短链后端
-const sinkApi = 'https://file.520jacky.dpdns.org/api/link'
+const sinkApi = 'https://texturl.520jacky.dpdns.org/api/link'
 
 export default {
   data() {
@@ -525,7 +525,7 @@ export default {
       })
         .then(res => {
           if (res.data.code === 1 && res.data.id) {
-            this.customShortSubUrl = 'https://file.520jacky.dpdns.org/' + res.data.id;
+            this.customShortSubUrl = 'https://texturl.20jacky.dpdns.org/' + res.data.id;
             this.$copyText(this.customShortSubUrl);
             this.$message.success("短链接已复制到剪贴板");
           } else {
