@@ -497,9 +497,6 @@ export default {
 
       this.$copyText(this.customSubUrl);
       this.$message.success("定制订阅已复制到剪贴板");
-
-      // 生成短链接
-      this.makeShortUrl();
     },
     async makeShortUrl() {
       if (this.customSubUrl === "") {
