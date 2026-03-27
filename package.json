@@ -5,6 +5,9 @@
   "engines": {
     "node": ">=20.0.0"
   },
+  "resolutions": {
+    "@achrinza/node-ipc": "^9.2.5"
+  },
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
