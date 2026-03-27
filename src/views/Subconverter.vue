@@ -526,9 +526,14 @@ export default {
 
       this.loading = true;
 
-      // 生成随机slug
+      // 生成符合ZQ-URL要求的slug（只包含小写字母和数字，避免特殊字符）
       const generateSlug = () => {
-        return Math.random().toString(36).slice(2, 8);
+        const chars = '23456789abcdefghjkmnpqrstuvwxyz';
+        let result = '';
+        for (let i = 0; i < 6; i++) {
+          result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
       };
 
       // 使用 application/json 格式
