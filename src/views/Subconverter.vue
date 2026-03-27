@@ -203,7 +203,7 @@ const defaultBackend = process.env.VUE_APP_SUBCONVERTER_DEFAULT_BACKEND + '/sub?
 const configUploadBackend = process.env.VUE_APP_CONFIG_UPLOAD_API
 // 仅保留一个变量作为短链后端：VUE_APP_MYURLS_API
 // 优先使用环境变量；若未配置，则使用固定的 Sink 地址作为兜底，防止误走回退分支
-const sinkApi = process.env.VUE_APP_MYURLS_API || 'https://url.520jacky.dpdns.org/api/link/upsert'
+const sinkApi = process.env.VUE_APP_MYURLS_API || 'https://url.520jacky.dpdns.org/api/link/create'
 
 export default {
   data() {
@@ -543,9 +543,8 @@ export default {
         slug: generateSlug()
       };
 
-      // 使用create API代替upsert API
       this.$axios
-        .post('https://url.520jacky.dpdns.org/api/link/create', body, {
+        .post(sinkApi, body, {
           headers: {
             'Content-Type': 'application/json'
           }
