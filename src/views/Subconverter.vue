@@ -497,6 +497,23 @@ export default {
 
       this.$copyText(this.customSubUrl);
       this.$message.success("定制订阅已复制到剪贴板");
+
+      // 发送到 zq-file 文本
+      try {
+        await this.$axios.post('https://texturl.520jacky.dpdns.org/api/paste', {
+          text: this.customSubUrl,
+          title: 'ZQ-SubLink 订阅',
+          name: null,
+          expireAt: null
+        }, {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-From': 'ZQ-SubLink'
+          }
+        });
+      } catch (error) {
+        console.log('发送到 zq-file 失败:', error.message);
+      }
     },
     async makeShortUrl() {
       if (this.customSubUrl === "") {
@@ -522,7 +539,7 @@ export default {
       })
         .then(res => {
           if (res.data.code === 1 && res.data.id) {
-            this.customShortSubUrl = 'https://texturl.20jacky.dpdns.org/' + res.data.id;
+            this.customShortSubUrl = 'https://texturl.520jacky.dpdns.org/' + res.data.id;
             this.$copyText(this.customShortSubUrl);
             this.$message.success("短链接已复制到剪贴板");
           } else {
