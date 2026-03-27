@@ -501,66 +501,33 @@ export default {
 
       // === 新增：自动上传到Pastebin ===
       try {
-        const response = await this.$axios.post('https://file.520jacky.dpdns.org/api/paste', {
+        .post('https://file.520jacky.dpdns.org/api/paste', {
           text: this.customSubUrl
         }, {
           headers: {
             'X-From': 'ZQ-SubLink'
           }
         });
-        // 处理响应，更新customShortSubUrl
-        if (response.data && response.data.code === 1 && response.data.id) {
-          const pasteUrl = 'https://file.520jacky.dpdns.org/' + response.data.id;
-          this.customShortSubUrl = pasteUrl;
-        }
-      } catch (e) {
-        // 失败也不赋值 customShortSubUrl
-      }
-      // === 新增结束 ===
-    },
-    makeShortUrl() {
-      if (this.customSubUrl === "") {
-        this.$message.warning("请先生成订阅链接，再获取对应短链接");
-        return false;
+        // 不赋值 customShortSu不赋值 Pastebin返回什么
+    ，无论PkeShb 
+返回什么 false;
       }
 
       this.loading = true;
 
-      // 生成符合ZQ-URL要求的slug（只包含小写字母和数字，避免特殊字符）
-      const generateSlug = () => {
-        const chars = '23456789abcdefghjkmnpqrstuvwxyz';
-        let result = '';
-        for (let i = 0; i < 6; i++) {
-          result += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return result;
-      };
+      // 仅使用一个 JSON 接口作为短链后端
+      // 采用 application/x-www-form-urlencoded，避免浏览器触发 CORS 预检
+      const body = new URLSearchParams()
+      body.append('url', this.customSubUrl)
+      body.append('comment', 'ZQ-SubLink')
 
-      // 使用 application/json 格式
-      const body = {
-        url: this.customSubUrl,
-        comment: 'ZQ-SubLink',
-        slug: generateSlug()
-      };
-
-      // 直接使用upsert API，因为它已经存在
-      this.$axios
-        .post('https://url.520jacky.dpdns.org/api/link/upsert', body, {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        })
-        .then(res => {
-          const data = res.data || {};
-          if (data.shortLink) {
-            this.customShortSubUrl = data.shortLink;
-            this.$copyText(data.shortLink);
-            this.$message.success("短链接已复制到剪贴板");
+      th仅使用一个
+JpONb接口作为短链后端    .thdat采.shortLink) {
+x-www-f rm-urle coded，避免浏览器触发 CORS 预检     this.customShornewuURLSearchParams()
+Url = body.append('dat',.shortLink;
+      )   thisbody.append('.$copyT',xt(data.shortas("短链接已复制到剪贴板");
           } else {
-            this.$message.error("短链接获取失败：返回数据不含 shortLink");
-          }
-        })
-        .catch((e) => {
+         r)> {
           this.$message.error("短链接获取失败：" + (e && e.message ? e.message : ""));
         })
         .finally(() => {
