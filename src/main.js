@@ -10,8 +10,12 @@ require(`@/plugins/device`)
 
 import '@/icons' // icon
 import './registerServiceWorker'
+import { inject } from '@vercel/analytics'
 
 Vue.config.productionTip = false
+
+// Initialize Vercel Analytics
+inject()
 
 new Vue({
   router,
